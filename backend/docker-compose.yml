@@ -1,0 +1,75 @@
+
+services:
+  upload-service:
+    build:
+      context: ./services/upload-service
+      dockerfile: Dockerfile
+    image: backend-upload-service
+    container_name: upload-service
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./services/upload-service/.env
+    depends_on:
+      - mongo
+      - redis
+      - minio
+    networks:
+      - app-network
+    
+  stt-service:
+    build:
+      context: ./services/stt-service
+      dockerfile: Dockerfile
+    image: backend-stt-service
+    container_name: stt-service
+    ports:
+      - "5001:5001"
+    env_file:
+      - ./services/stt-service/.env
+    depends_on:
+      - mongo
+      - redis
+      - minio
+    networks:
+      - app-network
+
+  mongo:
+    image: mongo:6
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console UI
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    networks:
+      - app-network
+
+volumes:
+  minio_data:
+
+networks:
+  app-network:
+    driver: bridge
