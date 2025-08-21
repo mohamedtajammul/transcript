@@ -35,7 +35,12 @@ export default function UploadPage() {
       setFile(null);
 
       // Redirect to dashboard
-      navigate("/dashboard");
+      if (fileId) {
+        // Redirect to AudioDetailPage for the uploaded file
+        navigate(`/details/${fileId}`);
+      } else {
+        alert('something went wrong')
+      }
     } catch (err) {
       console.error("Upload failed:", err);
       alert("Failed to upload file.");
