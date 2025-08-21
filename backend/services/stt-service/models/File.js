@@ -6,8 +6,8 @@ const fileSchema = new mongoose.Schema({
   url: { type: String, required: true },
   status: { 
     type: String, 
-    enum: ["pending", "uploaded", "processing", "transcribed", "failed"], 
-    default: "uploaded" 
+    enum: ["pending", "uploaded", "processing", "transcribed", "rated", "failed"], 
+    default: "pending" 
   }, 
   transcript: { type: String }, // added for STT results
   createdAt: { type: Date, default: Date.now },

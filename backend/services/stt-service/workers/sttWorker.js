@@ -1,10 +1,12 @@
 import { Worker } from "bullmq";
 import IORedis from "ioredis";
+import { File } from "node:buffer"; 
+
 import FileModel from "../models/File.js";
 import { sttQueueName } from "../queues/sttQueue.js";
+import { ratingQueue } from "../queues/ratingQueue.js";
 import { minioClient } from "../utils/minioClient.js";
 import openai from "../config/openai.js";
-import { File } from "node:buffer"; 
 
 export const startSTTWorker = async () => {
   // Create Redis connection
@@ -68,6 +70,16 @@ export const startSTTWorker = async () => {
         });
 
         console.log(`✅ Transcription done for ${fileId}`);
+
+        // Push to rating-queue
+        await ratingQueue.add("rateTranscript", {
+            fileId,
+            transcript: transcriptRes.text,
+            bucket,
+            objectName,
+        });
+        
+        console.log(`➡️ Pushed transcript to rating-queue for ${fileId}`);
       } catch (err) {
         console.error(`❌ STT failed for ${fileId}`, err);
         await FileModel.findByIdAndUpdate(fileId, { status: "failed" });

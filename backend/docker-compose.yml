@@ -34,6 +34,22 @@ services:
     networks:
       - app-network
 
+  rating-service:
+    build:
+      context: ./services/rating-service
+      dockerfile: Dockerfile
+    image: backend-rating-service
+    container_name: rating-service
+    ports:
+      - "5003:5003"        # optional, since no API routes
+    env_file:
+      - ./services/rating-service/.env
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - app-network
+
   mongo:
     image: mongo:6
     container_name: mongo
