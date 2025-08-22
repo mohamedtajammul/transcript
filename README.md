@@ -109,6 +109,7 @@ MongoDB stores the `File` collection for all audio uploads, transcripts, and rat
   "createdAt": "...",
   "updatedAt": "..."
 }
+```
 
 ## Integration Points (STT / LLM)
 
