@@ -1,6 +1,6 @@
-# 🎧 Transcript & Rating System  
+# Transcript & Rating System  
 
-## 📌 Project Overview  
+## Project Overview  
 This project is a single-file upload system for **BPO call recordings** that automatically transcribes audio and rates the transcript based on multiple criteria.  
 
 It is built using a **microservices architecture** with:  
@@ -9,7 +9,7 @@ It is built using a **microservices architecture** with:
 - MongoDB, Redis queues, MinIO  
 - OpenAI APIs for STT and ratings  
 
-### 🔑 Key Features  
+### Key Features  
 - Upload audio files  
 - Real-time transcription using OpenAI Whisper  
 - Automatic rating for customer-executive calls:  
@@ -23,9 +23,9 @@ It is built using a **microservices architecture** with:
 
 ---
 
-## 🏗️ Architecture Design  
+## Architecture Design  
 
-### 🔹 Front-End Flow  
+### Front-End Flow  
 
 #### Upload Page (`/upload`)  
 - User selects a single audio file  
@@ -46,7 +46,7 @@ It is built using a **microservices architecture** with:
 
 ---
 
-### 🔹 Back-End Services  
+### Back-End Services  
 
 #### 1. Upload-Service  
 **Purpose:** Handles audio file uploads, stores in MinIO, saves metadata in MongoDB, and pushes jobs to STT queue.  
@@ -87,7 +87,7 @@ It is built using a **microservices architecture** with:
 
 ---
 
-### 🔹 Database  
+### Database  
 
 MongoDB stores the `File` collection for all audio uploads, transcripts, and ratings.  
 
@@ -109,3 +109,41 @@ MongoDB stores the `File` collection for all audio uploads, transcripts, and rat
   "createdAt": "...",
   "updatedAt": "..."
 }
+
+## Integration Points (STT / LLM)
+
+### STT (Speech-to-Text)
+- **Service:** `stt-service`  
+- **Queue:** `sttQueue`  
+- **Input:** Audio file  
+- **Output:** Transcript text saved in MongoDB  
+
+### LLM Ratings
+- **Service:** `rating-service`  
+- **Queue:** `ratingQueue`  
+- **Input:** Transcript text  
+- **Output:** JSON ratings saved in MongoDB  
+
+---
+
+## Orchestration
+Docker Compose manages all services:  
+- `upload-service`  
+- `stt-service`  
+- `rating-service`  
+- `mongo`  
+- `redis`  
+- `minio`  
+
+Each service has its own **Dockerfile** and **.env** configuration.  
+Microservice modularity allows scaling individual services independently (e.g., multiple STT workers or rating workers).  
+
+---
+
+## Scalability & Modularity
+- **Horizontal Scaling:** Multiple workers can consume jobs from Redis queues for high-volume uploads.  
+- **Modular Services:** Each service is independent — easier to maintain and update.  
+- **Polling / WebSockets:** Frontend polling can be replaced by WebSocket events for real-time updates at scale.  
+- **Database:** MongoDB handles concurrent writes for transcripts and ratings.  
+- **Cloud / Cluster Ready:** Can easily deploy on Kubernetes with individual service replicas.  
+
